@@ -21,7 +21,7 @@ const getUrl = async (req: NextApiRequest, res: NextApiResponse) => {
   }
 
   res.statusCode = 404;
-  return res.send({ message: 'url not found!' })
+  return res.send({ message: 'slug not found' })
 };
 
 export default getUrl;
