@@ -1,6 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { FormEvent, useState } from 'react';
+import { FormEvent, useState, ChangeEvent, KeyboardEvent } from 'react';
 import { useQueryClient } from 'react-query';
 import { trpc } from '../utils/trpc';
 
@@ -25,34 +25,60 @@ const Home: NextPage = () => {
 
 const InputForm = () => {
   const [input, setInput] = useState('');
+  const [isShortened, setIsShortened] = useState(false);
   const createUrl = trpc.useMutation('create');
   const last10ShortUrls = trpc.useQuery(['get']);
   const client = useQueryClient();
 
+  function addToClipboard(newClip: string) {
+    navigator.clipboard.writeText(newClip).then().catch(() => {
+      console.log('failed to add to clipboard')
+    });
+  }
+
   const onClickHandler = (e: FormEvent) => {
     e.preventDefault();
+
+    if (isShortened) {
+      return addToClipboard(input);
+    }
+
     createUrl.mutate(
       {
         url: input,
       },
       {
-        onSuccess() {
-          setInput('');
+        onSuccess({ shortUrl }) {
+          console.log('shortUrl', shortUrl);
+          console.log('window', window);
+          setInput(`${window.origin}/${shortUrl.slug}`);
+          setIsShortened(true);
           client.invalidateQueries('get');
         },
       },
     );
   };
 
+  const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Backspace' || e.key === 'Delete') {
+      setIsShortened(false);
+    }
+  };
+
+  const onChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
+
   return (
     <div className='w-3/4'>
       <form onSubmit={onClickHandler}>
         <section className='flex flex-col text-centre justify-center p-6 duration-500 border-2 border-gray-500 rounded shadow-xl'>
-          <div className='flex flex-row space-x-4'>
-            <button className='text-lg text-purple-300 border p-2'>MAKE TINY</button>
+          <div className='flex flex-row'>
+            <button className='text-lg text-purple-300 border p-2 w-32'>{isShortened ? 'Copy' : 'Shorten'}</button>
             <input
               className='flex-1 text-center'
-              onChange={(e) => setInput(e.target.value)}
+              onChange={onChange}
+              onKeyDown={onKeyDown}
               type='text'
               value={input}
             />
@@ -61,7 +87,7 @@ const InputForm = () => {
         <div className='text-white mt-5 p-5 grid border-2 border-gray-500 rounded shadow-xl'>
           <h3 className='text-small leading-normal text-purple-300'>Previous 10 links:</h3>
           {last10ShortUrls?.data?.last10ShortUrls.map((row) => (
-            <a className='text-small font-thin' key={row.id} href={window.location + row.slug}>
+            <a className='text-small font-thin' key={row.id} href={`${window.origin}/${row.slug}`}>
               {window.location + row.slug}
             </a>
           ))}
