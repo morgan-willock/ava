@@ -58,7 +58,7 @@ const InputForm = () => {
             />
           </div>
         </section>
-        <div className='text-white mt-5 p-5 grid auto-cols-min border-2 border-gray-500 rounded shadow-xl'>
+        <div className='text-white mt-5 p-5 grid border-2 border-gray-500 rounded shadow-xl'>
           <h3 className='text-small leading-normal text-purple-300'>Previous 10 links:</h3>
           {last10ShortUrls?.data?.last10ShortUrls.map((row) => (
             <a className='text-small font-thin' key={row.id} href={window.location + row.slug}>
