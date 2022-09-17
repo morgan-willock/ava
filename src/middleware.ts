@@ -12,13 +12,15 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
 
   const slug = req.nextUrl.pathname.split('/').pop();
 
+  console.log('slug', slug);
+
   if (slug) {
-    const data: { shortUrl: ShortUrl } = await (
-      await fetch(`${req.nextUrl.origin}/api/get-url/${slug}`)
-    ).json();
+    console.log('nextUrl', `${req.nextUrl.origin}/api/get-url/${slug}`);
+
+    const data: { shortUrl: ShortUrl } = await (await fetch(`${req.nextUrl.origin}/api/get-url/${slug}`)).json();
 
     if (data?.shortUrl?.url) {
-      return NextResponse.redirect(data.shortUrl.url)
+      return NextResponse.redirect(data.shortUrl.url);
     }
   }
 }
