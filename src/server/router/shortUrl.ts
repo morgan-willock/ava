@@ -1,6 +1,7 @@
 import * as trpc from '@trpc/server';
 import { z } from 'zod';
 import { prisma } from '../db/client';
+import { nanoid } from 'nanoid';
 
 const createRouter = () => {
   return trpc.router();
@@ -28,7 +29,10 @@ export const shortUrl = createRouter()
     }),
     resolve: async ({ input }) => {
       const shortUrl = await prisma.shortUrl.create({
-        data: input
+        data: {
+          url: input.url,
+          slug: nanoid(6)
+        }
       })
       return {
         shortUrl

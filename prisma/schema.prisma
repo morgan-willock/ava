@@ -16,7 +16,7 @@ model ShortUrl {
     id Int @id @default(autoincrement())
     dateCreated DateTime @default(now())
     url String
-    slug String @default(cuid())
+    slug String
 
     @@index([slug])
 }
